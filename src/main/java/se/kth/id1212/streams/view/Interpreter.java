@@ -24,14 +24,12 @@
 package se.kth.id1212.streams.view;
 
 import java.io.Console;
-import java.util.Arrays;
 
 /**
  * Reads and interprets user commands. The command interpreter will run in a separate thread, which
  * is started by calling the <code>start</code> method.
  */
 public class Interpreter implements Runnable {
-    private static final String PARAM_DELIMETER = " ";
     private static final String PROMPT = ">";
     private Console console = System.console();
     private boolean receivingCmds = false;
@@ -64,40 +62,4 @@ public class Interpreter implements Runnable {
 
     }
 
-    private static class CmdLine {
-        private String[] params;
-        private Command cmd;
-
-        private CmdLine(String enteredLine) {
-            String[] enteredTokens = enteredLine.split(PARAM_DELIMETER);
-            parseCmd(enteredTokens);
-            extractParams(enteredTokens);
-        }
-
-        private void parseCmd(String[] enteredTokens) {
-            int cmdNameIndex = 0;
-            try {
-                cmd = Command.valueOf(enteredTokens[cmdNameIndex]);
-            } catch (Throwable failedToReadCmd) {
-                cmd = Command.INVALID;
-            }            
-        }
-
-        private void extractParams(String[] enteredTokens) {
-            int firstParamIndex = 1;
-            int lastParamIndex = enteredTokens.length;
-            params = Arrays.copyOfRange(enteredTokens, firstParamIndex, lastParamIndex);
-        }
-        
-        private Command getCmd() {
-            return cmd;
-        }
-
-        /*
-         * The first parameter (after the command name) has index zero.
-         */
-        private String getParameter(int index) {
-            return params[index];
-        }
-    }
 }
