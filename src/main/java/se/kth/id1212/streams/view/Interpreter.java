@@ -23,15 +23,15 @@
  */
 package se.kth.id1212.streams.view;
 
-import java.io.Console;
+import java.util.Scanner;
 
 /**
  * Reads and interprets user commands. The command interpreter will run in a separate thread, which
  * is started by calling the <code>start</code> method.
  */
 public class Interpreter implements Runnable {
-    private static final String PROMPT = ">";
-    private Console console = System.console();
+    private static final String PROMPT = "> ";
+    private Scanner console = new Scanner(System.in);
     private boolean receivingCmds = false;
 
     /**
@@ -42,6 +42,7 @@ public class Interpreter implements Runnable {
         if (receivingCmds) {
             return;
         }
+        receivingCmds = true;
         new Thread(this).start();
     }
 
@@ -51,15 +52,19 @@ public class Interpreter implements Runnable {
     @Override
     public void run() {
         while (receivingCmds) {
-            CmdLine cmdLine = new CmdLine(console.readLine(PROMPT));
+            CmdLine cmdLine = new CmdLine(readNextLine());
             switch (cmdLine.getCmd()) {
                 case QUIT:
                     receivingCmds = false;
                     break;
-                case 
             }
         }
 
+    }
+    
+    private String readNextLine() {
+        System.out.print(PROMPT);
+        return console.nextLine();
     }
 
 }

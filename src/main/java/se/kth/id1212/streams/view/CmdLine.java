@@ -40,28 +40,12 @@ class CmdLine {
      * @param enteredLine A line that was entered by the user.
      */
     CmdLine(String enteredLine) {
-        String[] enteredTokens = enteredLine.split(PARAM_DELIMETER);
-        parseCmd(enteredTokens);
-        extractParams(enteredTokens);
-    }
-
-    private void parseCmd(String[] enteredTokens) {
-        int cmdNameIndex = 0;
-        try {
-            cmd = Command.valueOf(enteredTokens[cmdNameIndex]);
-        } catch (Throwable failedToReadCmd) {
-            cmd = Command.INVALID;
-        }
-    }
-
-    private void extractParams(String[] enteredTokens) {
-        int firstParamIndex = 1;
-        int lastParamIndex = enteredTokens.length;
-        params = Arrays.copyOfRange(enteredTokens, firstParamIndex, lastParamIndex);
+        parseCmd(removeExtraSpaces(enteredLine));
+        extractParams(removeExtraSpaces(enteredLine));
     }
 
     /**
-     * @return The command entered on the line represented by this object.
+     * @return The command represented by this object.
      */
     Command getCmd() {
         return cmd;
@@ -72,10 +56,46 @@ class CmdLine {
      * Parameters are separated by a blank character (" ").
      *
      * @param index The index of the searched parameter.
-     * @return The parameter with the specified index.
+     * @return The parameter with the specified index, or <code>null</code> if there is no parameter
+     *         with that index.
      */
     String getParameter(int index) {
+        if (index >= params.length) {
+            return null;
+        }
         return params[index];
+    }
+
+    private String removeExtraSpaces(String enteredLine) {
+        if (enteredLine == null) {
+            return enteredLine;
+        }
+        String oneOrMoreOccurences = "+";
+        return enteredLine.trim().replaceAll(PARAM_DELIMETER + oneOrMoreOccurences, PARAM_DELIMETER);
+    }
+
+    private void parseCmd(String enteredLine) {
+        int cmdNameIndex = 0;
+        try {
+            String[] enteredTokens = splitString(enteredLine);
+            cmd = Command.valueOf(enteredTokens[cmdNameIndex].toUpperCase());
+        } catch (Throwable failedToReadCmd) {
+            cmd = Command.INVALID;
+        }
+    }
+
+    private void extractParams(String enteredLine) {
+        if (enteredLine == null) {
+            return;
+        }
+        String[] enteredTokens = splitString(enteredLine);
+        int firstParamIndex = 1;
+        int lastParamIndex = enteredTokens.length;
+        params = Arrays.copyOfRange(enteredTokens, firstParamIndex, lastParamIndex);
+    }
+
+    private String[] splitString(String source) {
+        return source.split(PARAM_DELIMETER);
     }
 
 }
