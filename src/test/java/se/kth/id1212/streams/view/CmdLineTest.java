@@ -23,10 +23,6 @@
  */
 package se.kth.id1212.streams.view;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -135,5 +131,46 @@ public class CmdLineTest {
         String expResult = null;
         String result = instance.getParameter(0);
         assertEquals("Found non-existing parameter.", expResult, result);
+    }
+
+    @Test
+    public void testGetParameterEmptyInput() {
+        String enteredLine = "";
+        CmdLine instance = new CmdLine(enteredLine);
+        String expResult = null;
+        String result = instance.getParameter(0);
+        assertEquals("Found non-existing parameter.", expResult, result);
+    }
+
+    @Test
+    public void testGetParameterNullInput() {
+        String enteredLine = null;
+        CmdLine instance = new CmdLine(enteredLine);
+        String expResult = null;
+        String result = instance.getParameter(0);
+        assertEquals("Found non-existing parameter.", expResult, result);
+    }
+
+    @Test
+    public void testQuotesInParamters() {
+        String firstParam = "param1";
+        String secondParam = "param2";
+        String thirdParam = "param3";
+        String fourthParam = "param4";
+        String fifthParam = "param5";
+        String delimeter = " ";
+        String enteredLine = "quit" + delimeter + firstParam + delimeter + "\"" + secondParam
+                             + delimeter + thirdParam + delimeter + fourthParam + "\"" + delimeter
+                             + fifthParam;
+        CmdLine instance = new CmdLine(enteredLine);
+        String expResult = firstParam;
+        String result = instance.getParameter(0);
+        assertEquals("Got wrong parameter.", expResult, result);
+        expResult = secondParam + delimeter + thirdParam + delimeter + fourthParam;
+        result = instance.getParameter(1);
+        assertEquals("Got wrong parameter.", expResult, result);
+        expResult = fifthParam;
+        result = instance.getParameter(2);
+        assertEquals("Got wrong parameter.", expResult, result);
     }
 }

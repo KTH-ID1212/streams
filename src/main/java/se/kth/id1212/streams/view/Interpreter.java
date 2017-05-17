@@ -23,7 +23,9 @@
  */
 package se.kth.id1212.streams.view;
 
+import java.io.IOException;
 import java.util.Scanner;
+import se.kth.id1212.streams.filehandler.FileHandler;
 
 /**
  * Reads and interprets user commands. The command interpreter will run in a separate thread, which
@@ -51,20 +53,36 @@ public class Interpreter implements Runnable {
      */
     @Override
     public void run() {
+        FileHandler fileHandler = new FileHandler();
         while (receivingCmds) {
-            CmdLine cmdLine = new CmdLine(readNextLine());
-            switch (cmdLine.getCmd()) {
-                case QUIT:
-                    receivingCmds = false;
-                    break;
+            try {
+                CmdLine cmdLine = new CmdLine(readNextLine());
+                switch (cmdLine.getCmd()) {
+                    case QUIT:
+                        receivingCmds = false;
+                        break;
+                    case CREATEDIR:
+                        fileHandler.createDir(cmdLine.getParameter(0));
+                        break;
+                    case WRITE:
+                        fileHandler.write(cmdLine.getParameter(0), cmdLine.getParameter(1));
+                        break;
+                    default:
+                        output("Invalid command");
+                }
+            } catch (IOException ioe) {
+                output("Operation failed");
             }
         }
-
     }
-    
+
     private String readNextLine() {
         System.out.print(PROMPT);
         return console.nextLine();
+    }
+
+    private void output(String msg) {
+        System.out.println(msg);
     }
 
 }

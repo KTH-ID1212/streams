@@ -23,7 +23,8 @@
  */
 package se.kth.id1212.streams.view;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * One line of user input, which should be a command and parameters associated with that command (if
@@ -40,8 +41,8 @@ class CmdLine {
      * @param enteredLine A line that was entered by the user.
      */
     CmdLine(String enteredLine) {
-        parseCmd(removeExtraSpaces(enteredLine));
-        extractParams(removeExtraSpaces(enteredLine));
+        parseCmd(enteredLine);
+        extractParams(enteredLine);
     }
 
     /**
@@ -53,31 +54,35 @@ class CmdLine {
 
     /**
      * Returns the parameter with the specified index. The first parameter has index zero.
-     * Parameters are separated by a blank character (" ").
+     * Parameters are separated by a blank character (" "). A Character sequence enclosed in quotes
+     * form one single parameter, even if it contains blanks.
      *
      * @param index The index of the searched parameter.
      * @return The parameter with the specified index, or <code>null</code> if there is no parameter
      *         with that index.
      */
     String getParameter(int index) {
+        if (params == null) {
+            return null;
+        }
         if (index >= params.length) {
             return null;
         }
         return params[index];
     }
 
-    private String removeExtraSpaces(String enteredLine) {
-        if (enteredLine == null) {
-            return enteredLine;
+    private String removeExtraSpaces(String source) {
+        if (source == null) {
+            return source;
         }
         String oneOrMoreOccurences = "+";
-        return enteredLine.trim().replaceAll(PARAM_DELIMETER + oneOrMoreOccurences, PARAM_DELIMETER);
+        return source.trim().replaceAll(PARAM_DELIMETER + oneOrMoreOccurences, PARAM_DELIMETER);
     }
 
     private void parseCmd(String enteredLine) {
         int cmdNameIndex = 0;
         try {
-            String[] enteredTokens = splitString(enteredLine);
+            String[] enteredTokens = removeExtraSpaces(enteredLine).split(PARAM_DELIMETER);
             cmd = Command.valueOf(enteredTokens[cmdNameIndex].toUpperCase());
         } catch (Throwable failedToReadCmd) {
             cmd = Command.INVALID;
@@ -88,14 +93,39 @@ class CmdLine {
         if (enteredLine == null) {
             return;
         }
-        String[] enteredTokens = splitString(enteredLine);
-        int firstParamIndex = 1;
-        int lastParamIndex = enteredTokens.length;
-        params = Arrays.copyOfRange(enteredTokens, firstParamIndex, lastParamIndex);
+        if (cmd.equals(Command.INVALID)) {
+            return;
+        }
+        String withoutCmd = removeCmd(enteredLine);
+        String readyForParsing = removeExtraSpaces(withoutCmd);
+        List<String> foundParams = new ArrayList<>();
+        int start = 0;
+        boolean inQuotes = false;
+        for (int index = 0; index < readyForParsing.length(); index++) {
+            if (readyForParsing.charAt(index) == '\"') {
+                inQuotes = !inQuotes;
+            }
+            if (isLastChar(index, readyForParsing)) {
+                foundParams.add(readyForParsing.substring(start));
+            } else if (timeToSplit(index, readyForParsing, inQuotes)) {
+                foundParams.add(readyForParsing.substring(start, index));
+                start = index + 1;
+            }
+        }
+        params = foundParams.toArray(new String[0]);
     }
 
-    private String[] splitString(String source) {
-        return source.split(PARAM_DELIMETER);
+    private String removeCmd(String enteredLine) {
+        int indexAfterCmd = enteredLine.toUpperCase().indexOf(cmd.name()) + cmd.name().length();
+        String withoutCmd =  enteredLine.substring(indexAfterCmd, enteredLine.length());
+        return withoutCmd.trim();
     }
 
+    private boolean timeToSplit(int index, String source, boolean dontSplit) {
+        return source.charAt(index) == PARAM_DELIMETER.charAt(0) && !dontSplit;
+    }
+
+    private boolean isLastChar(int index, String source) {
+        return index == (source.length() - 1);
+    }
 }

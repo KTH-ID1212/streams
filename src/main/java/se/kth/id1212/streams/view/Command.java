@@ -28,9 +28,9 @@ package se.kth.id1212.streams.view;
  */
 public enum Command {
     /**
-     * Create an empty file or directory.
+     * Create an empty directory.
      */
-    CREATE, 
+    CREATEDIR, 
     
     /**
      * Append content to a file.
