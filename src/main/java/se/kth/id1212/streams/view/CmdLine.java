@@ -96,36 +96,51 @@ class CmdLine {
         if (cmd.equals(Command.INVALID)) {
             return;
         }
-        String withoutCmd = removeCmd(enteredLine);
-        String readyForParsing = removeExtraSpaces(withoutCmd);
-        List<String> foundParams = new ArrayList<>();
+        String readyForParsing = removeExtraSpaces(removeCmd(enteredLine));
+        List<String> params = new ArrayList<>();
         int start = 0;
         boolean inQuotes = false;
         for (int index = 0; index < readyForParsing.length(); index++) {
-            if (readyForParsing.charAt(index) == '\"') {
+            if (currentCharIsQuote(readyForParsing, index)) {
                 inQuotes = !inQuotes;
             }
-            if (isLastChar(index, readyForParsing)) {
-                foundParams.add(readyForParsing.substring(start));
-            } else if (timeToSplit(index, readyForParsing, inQuotes)) {
-                foundParams.add(readyForParsing.substring(start, index));
+            if (reachedEndOfString(readyForParsing, index)) {
+                addParam(params, readyForParsing, start, index);
+            } else if (timeToSplit(readyForParsing, index, inQuotes)) {
+                addParam(params, readyForParsing, start, index);
                 start = index + 1;
             }
         }
-        params = foundParams.toArray(new String[0]);
+        this.params = params.toArray(new String[0]);
+    }
+
+    private void addParam(List<String> params, String paramSource, int start, int index) {
+        if (reachedEndOfString(paramSource, index)) {
+            params.add(removeQuotes(paramSource.substring(start)));
+        } else {
+            params.add(removeQuotes(paramSource.substring(start, index)));
+        }
+    }
+
+    private boolean currentCharIsQuote(String readyForParsing, int index) {
+        return readyForParsing.charAt(index) == '\"';
     }
 
     private String removeCmd(String enteredLine) {
         int indexAfterCmd = enteredLine.toUpperCase().indexOf(cmd.name()) + cmd.name().length();
-        String withoutCmd =  enteredLine.substring(indexAfterCmd, enteredLine.length());
+        String withoutCmd = enteredLine.substring(indexAfterCmd, enteredLine.length());
         return withoutCmd.trim();
     }
 
-    private boolean timeToSplit(int index, String source, boolean dontSplit) {
+    private boolean timeToSplit(String source, int index, boolean dontSplit) {
         return source.charAt(index) == PARAM_DELIMETER.charAt(0) && !dontSplit;
     }
 
-    private boolean isLastChar(int index, String source) {
+    private boolean reachedEndOfString(String source, int index) {
         return index == (source.length() - 1);
+    }
+
+    private String removeQuotes(String source) {
+        return source.replaceAll("\"", "");
     }
 }
