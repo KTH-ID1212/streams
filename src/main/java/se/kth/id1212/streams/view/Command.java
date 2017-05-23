@@ -38,12 +38,17 @@ public enum Command {
     WRITE,
     
     /**
+     * Print the content of a file.
+     */
+    READ,
+    
+    /**
      * Delete a file or directory.
      */
     DELETE,
     
     /**
-     * List the files in a directory or the content of a file.
+     * List the files in a directory.
      */
     LIST,
     

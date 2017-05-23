@@ -23,7 +23,6 @@
  */
 package se.kth.id1212.streams.view;
 
-import java.io.IOException;
 import java.util.Scanner;
 import se.kth.id1212.streams.filehandler.FileHandler;
 
@@ -67,10 +66,16 @@ public class Interpreter implements Runnable {
                     case WRITE:
                         fileHandler.write(cmdLine.getParameter(0), cmdLine.getParameter(1));
                         break;
+                    case READ:
+                        output(fileHandler.read(cmdLine.getParameter(0)));
+                        break;
+                    case LIST:
+                        output(fileHandler.listDir(cmdLine.getParameter(0)));
+                        break;
                     default:
                         output("Invalid command");
                 }
-            } catch (IOException ioe) {
+            } catch (Exception e) {
                 output("Operation failed");
             }
         }
