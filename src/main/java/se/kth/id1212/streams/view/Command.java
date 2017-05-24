@@ -68,6 +68,11 @@ public enum Command {
     QUIT,
     
     /**
+     * A very long running task, used to illustrate responsive UI.
+     */
+    SLOWCMD,
+    
+    /**
      * Invalid command
      */
     INVALID

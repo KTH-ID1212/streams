@@ -21,21 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package se.kth.id1212.streams.startup;
-
-import se.kth.id1212.streams.view.NonBlockingInterpreter;
+package se.kth.id1212.streams.view;
 
 /**
- * Starts the file handling application
+ * This class provides a thread safe output, all methods are synchronized. 
  */
-public class Main {
+class OutputManager {
     /**
-     * The main method of the file handling application.
+     * Prints the specified output to <code>System.out</code>,
      * 
-     * @param args 
+     * @param output The output to print. 
      */
-    public static void main(String[] args) {
-       new NonBlockingInterpreter().start(); 
+    synchronized void print(String output) {
+        System.out.print(output);
+    }
+
+    /**
+     * Prints the specified output, plus a line break, to <code>System.out</code>,
+     * 
+     * @param output The output to print. 
+     */
+    synchronized void println(String output) {
+        System.out.println(output);
     }
 }

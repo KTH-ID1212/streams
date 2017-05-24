@@ -24,16 +24,21 @@
 package se.kth.id1212.streams.view;
 
 import java.util.Scanner;
-import se.kth.id1212.streams.filehandler.FileHandler;
+import java.util.function.Consumer;
+import se.kth.id1212.streams.controller.Controller;
 
 /**
  * Reads and interprets user commands. The command interpreter will run in a separate thread, which
- * is started by calling the <code>start</code> method.
+ * is started by calling the <code>start</code> method. Commands are executed in a thread pool, a
+ * new prompt will be displayed as soon as a command is submitted to the pool, without waiting for
+ * command execution to complete.
  */
-public class Interpreter implements Runnable {
+public class NonBlockingInterpreter implements Runnable {
     private static final String PROMPT = "> ";
     private Scanner console = new Scanner(System.in);
     private boolean receivingCmds = false;
+    private Controller contr;
+    private OutputManager outMgr = new OutputManager();
 
     /**
      * Starts the interpreter. The interpreter will be waiting for user input when this method
@@ -44,6 +49,7 @@ public class Interpreter implements Runnable {
             return;
         }
         receivingCmds = true;
+        contr = new Controller();
         new Thread(this).start();
     }
 
@@ -52,7 +58,6 @@ public class Interpreter implements Runnable {
      */
     @Override
     public void run() {
-        FileHandler fileHandler = new FileHandler();
         while (receivingCmds) {
             try {
                 CmdLine cmdLine = new CmdLine(readNextLine());
@@ -61,33 +66,40 @@ public class Interpreter implements Runnable {
                         receivingCmds = false;
                         break;
                     case CREATEDIR:
-                        fileHandler.createDir(cmdLine.getParameter(0));
-                        break;
-                    case WRITE:
-                        fileHandler.write(cmdLine.getParameter(0), cmdLine.getParameter(1));
-                        break;
-                    case READ:
-                        output(fileHandler.read(cmdLine.getParameter(0)));
+                        contr.createDir(cmdLine.getParameter(0));
                         break;
                     case LIST:
-                        output(fileHandler.listDir(cmdLine.getParameter(0)));
+                        contr.listDir(cmdLine.getParameter(0), new ResultHandler());
+                        break;
+                    case WRITE:
+                        contr.write(cmdLine.getParameter(0), cmdLine.getParameter(1));
+                        break;
+                    case READ:
+                        contr.read(cmdLine.getParameter(0), new ResultHandler());
+                        break;
+                    case SLOWCMD:
+                        contr.longRunningTask();
                         break;
                     default:
-                        output("Invalid command");
+                        outMgr.println("Invalid command");
                 }
             } catch (Exception e) {
-                output("Operation failed");
+                outMgr.println("Operation failed");
+                e.printStackTrace();
             }
         }
     }
 
     private String readNextLine() {
-        System.out.print(PROMPT);
+        outMgr.print(PROMPT);
         return console.nextLine();
     }
 
-    private void output(String msg) {
-        System.out.println(msg);
+    private class ResultHandler implements Consumer {
+        @Override
+        public void accept(Object msg) {
+            outMgr.println((String)msg);
+            outMgr.print(PROMPT);
+        }
     }
-
 }
