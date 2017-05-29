@@ -30,8 +30,8 @@ import java.util.function.Consumer;
 import se.kth.id1212.streams.filehandler.FileHandler;
 
 /**
- * This controller decouples the view from the file handling. Maintains a thread pool for file
- * handling tasks. All methods submit its task to that pool, and then return immediately.
+ * This controller decouples the view from the file handling.  All methods submit their task to the
+ * common thread pool, provided by <code>ForkJoinPool.commonPool</code>, and then return immediately.
  */
 public class Controller {
     private FileHandler fileHandler = new FileHandler();
