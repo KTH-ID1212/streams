@@ -85,7 +85,6 @@ public class NonBlockingInterpreter implements Runnable {
                 }
             } catch (Exception e) {
                 outMgr.println("Operation failed");
-                e.printStackTrace();
             }
         }
     }
