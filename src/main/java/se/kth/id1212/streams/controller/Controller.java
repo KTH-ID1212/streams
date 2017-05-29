@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import se.kth.id1212.streams.filehandler.FileHandler;
 
 /**
