@@ -35,10 +35,10 @@ import se.kth.id1212.streams.controller.Controller;
  */
 public class NonBlockingInterpreter implements Runnable {
     private static final String PROMPT = "> ";
-    private Scanner console = new Scanner(System.in);
+    private final Scanner console = new Scanner(System.in);
+    private final OutputManager outMgr = new OutputManager();
     private boolean receivingCmds = false;
     private Controller contr;
-    private OutputManager outMgr = new OutputManager();
 
     /**
      * Starts the interpreter. The interpreter will be waiting for user input when this method
