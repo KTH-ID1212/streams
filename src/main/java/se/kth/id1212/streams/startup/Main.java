@@ -31,7 +31,7 @@ import se.kth.id1212.streams.view.NonBlockingInterpreter;
  */
 public class Main {
     /**
-     * The main method of the file handling application.
+     * The main method of the file handling application. There are no command line arguments.
      * 
      * @param args 
      */
